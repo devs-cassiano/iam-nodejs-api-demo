@@ -1,0 +1,887 @@
+openapi: 3.0.3
+info:
+  title: Node.js API IAM Example
+  version: 1.0.0
+  description: |
+    API com autenticação JWT, gerenciamento de roles, policies, permissions e groups no padrão AWS IAM.
+    
+    **Proteção IAM:**
+    - Rotas de criação/alteração/remover exigem permission específica (ex: `user:create`, `role:delete`).
+    - O campo `x-action` define a permission exigida pelo middleware IAM.
+    - Exemplo de erro 403:
+      ```json
+      { "error": "Access denied: missing permission user:create" }
+      ```
+    - Root tem acesso total (`*`). Admin só gerencia entidades criadas por ele.
+    - Veja exemplos de policies no README.
+servers:
+  - url: http://localhost:3000/api
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      x-action: POST
+      summary: Login do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Token JWT
+  /auth/register:
+    post:
+      tags: [Auth]
+      x-action: POST
+      summary: Registro de novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Usuário criado
+  /users:
+    get:
+      tags: [User]
+      x-action: GET
+      summary: Lista usuários
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de usuários
+    post:
+      tags: [User]
+      x-action: user:create
+      summary: Cria usuário
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Usuário criado
+        '403':
+          description: Access denied: missing permission user:create
+  /users/{id}:
+    get:
+      tags: [User]
+      x-action: GET
+      summary: Busca usuário por ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Usuário
+    put:
+      tags: [User]
+      x-action: user:update
+      summary: Atualiza usuário
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '200':
+          description: Usuário atualizado
+        '403':
+          description: Access denied: missing permission user:update
+    delete:
+      tags: [User]
+      x-action: user:delete
+      summary: Remove usuário
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Usuário removido
+        '403':
+          description: Access denied: missing permission user:delete
+  /roles:
+    get:
+      tags: [Role]
+      x-action: GET
+      summary: Lista roles
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de roles
+    post:
+      tags: [Role]
+      x-action: role:create
+      summary: Cria role
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Role criada
+        '403':
+          description: Access denied: missing permission role:create
+  /roles/{id}:
+    put:
+      tags: [Role]
+      x-action: role:update
+      summary: Atualiza role
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Role atualizada
+        '403':
+          description: Access denied: missing permission role:update
+    delete:
+      tags: [Role]
+      x-action: role:delete
+      summary: Remove role
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Role removida
+        '403':
+          description: Access denied: missing permission role:delete
+  /policies:
+    get:
+      tags: [Policy]
+      x-action: GET
+      summary: Lista policies
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de policies
+    post:
+      tags: [Policy]
+      x-action: policy:create
+      summary: Cria policy
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                document:
+                  type: object
+      responses:
+        '201':
+          description: Policy criada
+        '403':
+          description: Access denied: missing permission policy:create
+  /policies/{id}:
+    put:
+      tags: [Policy]
+      x-action: policy:update
+      summary: Atualiza policy
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                document:
+                  type: object
+      responses:
+        '200':
+          description: Policy atualizada
+        '403':
+          description: Access denied: missing permission policy:update
+    delete:
+      tags: [Policy]
+      x-action: policy:delete
+      summary: Remove policy
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Policy removida
+        '403':
+          description: Access denied: missing permission policy:delete
+  /permissions:
+    get:
+      tags: [Permission]
+      x-action: GET
+      summary: Lista permissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de permissions
+    post:
+      tags: [Permission]
+      x-action: permission:create
+      summary: Cria permission
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Permission criada
+        '403':
+          description: Access denied: missing permission permission:create
+  /permissions/{id}:
+    put:
+      tags: [Permission]
+      x-action: permission:update
+      summary: Atualiza permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Permission atualizada
+        '403':
+          description: Access denied: missing permission permission:update
+    delete:
+      tags: [Permission]
+      x-action: permission:delete
+      summary: Remove permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Permission removida
+        '403':
+          description: Access denied: missing permission permission:delete
+  /groups:
+    get:
+      tags: [Group]
+      x-action: GET
+      summary: Lista groups
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de groups
+    post:
+      tags: [Group]
+      x-action: group:create
+      summary: Cria group
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Group criado
+        '403':
+          description: Access denied: missing permission group:create
+  /groups/{id}:
+    put:
+      tags: [Group]
+      x-action: group:update
+      summary: Atualiza group
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Group atualizado
+        '403':
+          description: Access denied: missing permission group:update
+    delete:
+      tags: [Group]
+      x-action: group:delete
+      summary: Remove group
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Group removido
+        '403':
+          description: Access denied: missing permission group:delete
+  /users/{id}/roles:
+    post:
+      tags: [User]
+      x-action: POST
+      summary: Atribui role a usuário
+      description: Root pode atribuir qualquer role a qualquer usuário. Admin pode atribuir roles globais ou criadas por ele a seus próprios usuários.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roleId:
+                  type: integer
+      responses:
+        '204':
+          description: Role atribuída
+    delete:
+      tags: [User]
+      x-action: DELETE
+      summary: Remove role de usuário
+      description: Root pode remover qualquer role de qualquer usuário. Admin pode remover roles globais ou criadas por ele de seus próprios usuários.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: roleId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Role removida
+  /users/{id}/permissions:
+    post:
+      tags: [User]
+      x-action: POST
+      summary: Atribui permission a usuário
+      description: Root pode atribuir qualquer permission a qualquer usuário. Admin pode atribuir permissions globais ou criadas por ele a seus próprios usuários.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permissionId:
+                  type: integer
+      responses:
+        '204':
+          description: Permission atribuída
+    delete:
+      tags: [User]
+      x-action: DELETE
+      summary: Remove permission de usuário
+      description: Root pode remover qualquer permission de qualquer usuário. Admin pode remover permissions globais ou criadas por ele de seus próprios usuários.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: permissionId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Permission removida
+  /users/{id}/policies:
+    post:
+      tags: [User]
+      x-action: POST
+      summary: Atribui policy a usuário
+      description: Root pode atribuir qualquer policy a qualquer usuário. Admin pode atribuir policies globais ou criadas por ele a seus próprios usuários.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                policyId:
+                  type: integer
+      responses:
+        '204':
+          description: Policy atribuída
+    delete:
+      tags: [User]
+      x-action: DELETE
+      summary: Remove policy de usuário
+      description: Root pode remover qualquer policy de qualquer usuário. Admin pode remover policies globais ou criadas por ele de seus próprios usuários.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: policyId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Policy removida
+  /users/me/groups:
+    get:
+      tags: [User]
+      x-action: GET
+      summary: Lista grupos do usuário autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de grupos do usuário
+  /users/me/roles:
+    get:
+      tags: [User]
+      x-action: GET
+      summary: Lista roles do usuário autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de roles do usuário
+  /users/me/permissions:
+    get:
+      tags: [User]
+      x-action: GET
+      summary: Lista permissions do usuário autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de permissions do usuário
+  /users/me/policies:
+    get:
+      tags: [User]
+      x-action: GET
+      summary: Lista policies do usuário autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de policies do usuário
+  /groups/{id}/users:
+    post:
+      tags: [Group]
+      x-action: POST
+      summary: Adiciona usuário ao grupo
+      description: Root pode adicionar qualquer usuário. Admin pode adicionar apenas usuários criados por ele.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+      responses:
+        '204':
+          description: Usuário adicionado ao grupo
+    delete:
+      tags: [Group]
+      x-action: DELETE
+      summary: Remove usuário do grupo
+      description: Root pode remover qualquer usuário. Admin pode remover apenas usuários criados por ele.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Usuário removido do grupo
+    get:
+      tags: [Group]
+      x-action: GET
+      summary: Lista usuários do grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de usuários do grupo
+  /groups/{id}/roles:
+    post:
+      tags: [Group]
+      x-action: POST
+      summary: Atribui role ao grupo
+      description: Root pode atribuir qualquer role. Admin pode atribuir roles globais ou criadas por ele.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roleId:
+                  type: integer
+      responses:
+        '204':
+          description: Role atribuída ao grupo
+    delete:
+      tags: [Group]
+      x-action: DELETE
+      summary: Remove role do grupo
+      description: Root pode remover qualquer role. Admin pode remover roles globais ou criadas por ele.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: roleId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Role removida do grupo
+    get:
+      tags: [Group]
+      x-action: GET
+      summary: Lista roles do grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de roles do grupo
+  /groups/{id}/policies:
+    post:
+      tags: [Group]
+      x-action: POST
+      summary: Atribui policy ao grupo
+      description: Root pode atribuir qualquer policy. Admin pode atribuir policies globais ou criadas por ele.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                policyId:
+                  type: integer
+      responses:
+        '204':
+          description: Policy atribuída ao grupo
+    delete:
+      tags: [Group]
+      x-action: DELETE
+      summary: Remove policy do grupo
+      description: Root pode remover qualquer policy. Admin pode remover policies globais ou criadas por ele.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: policyId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Policy removida do grupo
+    get:
+      tags: [Group]
+      x-action: GET
+      summary: Lista policies do grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de policies do grupo
+  /roles/{id}/policies:
+    post:
+      tags: [Role]
+      x-action: role:attachPolicy
+      summary: Associa uma policy a uma role
+      description: |
+        Permite associar qualquer policy a qualquer role, desde que o usuário tenha a permission `role:attachPolicy`.
+        Não há restrição por ownership (createdBy), seguindo o padrão AWS IAM.
+        User não pode associar, apenas ler.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                policyId:
+                  type: integer
+      responses:
+        '204':
+          description: Policy associada à role
+        '403':
+          description: Access denied: missing permission role:attachPolicy
+  /policies/{id}/permissions:
+    post:
+      tags: [Policy]
+      x-action: policy:attachPermission
+      summary: Associa uma permission a uma policy
+      description: |
+        Permite associar qualquer permission a qualquer policy, desde que o usuário tenha a permission `policy:attachPermission`.
+        Não há restrição por ownership (createdBy), seguindo o padrão AWS IAM.
+        User não pode associar, apenas ler.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permissionId:
+                  type: integer
+      responses:
+        '204':
+          description: Permission associada à policy
+        '403':
+          description: Access denied: missing permission policy:attachPermission
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

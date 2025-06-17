@@ -1,0 +1,13 @@
+{
+  "name": "SecureResourceFullAccess",
+  "document": {
+    "Version": "2025-06-16",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": ["read:secure-resource", "write:secure-resource"],
+        "Resource": "arn:myapi:resource:secure"
+      }
+    ]
+  }
+}

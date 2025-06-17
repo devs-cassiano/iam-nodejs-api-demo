@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Root",
+    "policies": [
+      {
+        "name": "RootFullAccess",
+        "document": {
+          "Version": "2025-06-16",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "*",
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Admin",
+    "policies": [
+      {
+        "name": "AdminLimitedAccess",
+        "document": {
+          "Version": "2025-06-16",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "create:user", "update:user", "delete:user", "list:user", "read:user",
+                "create:group", "update:group", "delete:group", "list:group", "read:group",
+                "create:permission", "update:permission", "delete:permission", "list:permission", "read:permission",
+                "create:policy", "update:policy", "list:policy", "read:policy",
+                "create:role", "update:role", "list:role", "read:role"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "User",
+    "policies": [
+      {
+        "name": "UserReadOnlyAccess",
+        "document": {
+          "Version": "2025-06-16",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "read:user", "list:user",
+                "read:group", "list:group",
+                "read:permission", "list:permission",
+                "read:policy", "list:policy",
+                "read:role", "list:role"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
