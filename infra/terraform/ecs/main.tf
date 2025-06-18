@@ -39,7 +39,7 @@ resource "aws_ecs_service" "api" {
   network_configuration {
     subnets          = [var.private_subnet_id]
     security_groups  = [var.ecs_sg_id]
-    assign_public_ip = false
+    assign_public_ip = true
   }
   load_balancer {
     target_group_arn = var.alb_target_group_arn
