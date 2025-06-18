@@ -16,6 +16,11 @@ variable "aws_region" {
 }
 
 variable "private_subnet_id" {
+  type    = string
+  default = null
+}
+
+variable "public_subnet_id" {
   type = string
 }
 

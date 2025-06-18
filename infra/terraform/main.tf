@@ -42,7 +42,7 @@ module "ecs" {
   ecr_image_url          = module.ecr.ecr_repository_url
   db_password            = var.db_password
   aws_region             = var.aws_region
-  private_subnet_id      = module.network.private_subnet_ids[0]
+  public_subnet_id       = module.network.public_subnet_ids[0]
   ecs_sg_id              = module.network.ecs_sg_id
   alb_target_group_arn   = module.alb.api_tg_arn
   alb_listener_arn       = module.alb.api_listener_arn

@@ -37,7 +37,7 @@ resource "aws_ecs_service" "api" {
   launch_type     = "FARGATE"
   desired_count   = 1
   network_configuration {
-    subnets          = [var.private_subnet_id]
+    subnets          = [var.public_subnet_id]
     security_groups  = [var.ecs_sg_id]
     assign_public_ip = true
   }
