@@ -1,0 +1,13 @@
+.git/
+.vscode/
+.github/
+infra/
+tests/
+examples/
+node_modules/
+.env
+*.log
+*.md
+*.yaml
+*.yml
+Dockerfile

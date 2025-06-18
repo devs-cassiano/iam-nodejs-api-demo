@@ -1,0 +1,27 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #f8f8f8
+  BorderColor #333
+}
+
+rectangle "VPC" {
+  rectangle "Public Subnet" {
+    rectangle "ALB\n(Application Load Balancer)" as alb
+  }
+  rectangle "Private Subnet" {
+    rectangle "ECS Fargate\n(Node.js API)" as ecs
+    rectangle "RDS\n(PostgreSQL)" as rds
+    rectangle "Secrets Manager" as secrets
+    rectangle "CloudWatch" as cloudwatch
+  }
+}
+
+rectangle "ECR\n(Container Registry)" as ecr
+
+alb --> ecs : HTTP/HTTPS
+ecs --> rds : PostgreSQL
+ecs --> secrets : Secrets
+ecs --> cloudwatch : Logs/Monitoring
+ecs --> ecr : Pull Image
+
+@enduml
